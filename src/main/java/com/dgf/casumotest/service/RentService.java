@@ -2,8 +2,10 @@ package com.dgf.casumotest.service;
 
 import static com.dgf.casumotest.Constants.CUSTOMERS;
 import static com.dgf.casumotest.Constants.FILMS;
+import static com.dgf.casumotest.util.Json.toJson;
 import static java.lang.String.format;
 
+import com.dgf.casumotest.model.Customer;
 import com.dgf.casumotest.model.Film;
 import com.dgf.casumotest.model.UserFilmsRequest;
 import com.dgf.casumotest.model.calculated.RentResult;
@@ -15,7 +17,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -61,23 +62,11 @@ public class RentService {
 
     public void initData() {
         log.warn("Auto generating data for films & customers.");
-        Flux.zip(
-            filmService.createFilms(FILMS.get()),
-            customerService.createCustomers(CUSTOMERS.get())
-        ).subscribe(done-> {
-            log.warn("Auto generating requests for /book end-point");
-            generateBookRequests().map(Json::toJson).collectList()
-                .doOnSuccess(list-> log.warn("initData generated request:\n" + String.join("\n", list)))
-                .subscribe();
-        });
-    }
-
-    private Flux<UserFilmsRequest> generateBookRequests() {
-        return Flux.zip(
-            customerService.findAll(),
-            filmService.findAll().map(Film::getId).collectList(),
-            (a,b) -> new UserFilmsRequest(a.getId(),b)
-        );
+        filmService.createFilms(FILMS.get()).map(Film::getId)
+            .collectList().map(films ->
+                customerService.createCustomers(CUSTOMERS.get()).map(Customer::getId)
+                    .map(customer -> new UserFilmsRequest(customer, films))
+            ).subscribe(map -> map.subscribe(map2->log.warn("initData generated request:\n" + toJson(map2))));
     }
 
 }

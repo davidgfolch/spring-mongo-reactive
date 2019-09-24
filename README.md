@@ -21,28 +21,36 @@ I've changed the requirement "renting for x days".
 
 In my implementation, when renting, you are always paying for 1 day.
 
-When you return films you pay for surcharges if applies. 
+When you return films you pay for surcharges if applies.
+
+#### Details
+
+Rent & Return films:
+
+- In both cases:
+    - Non-existent `userId` throws UserNotFoundException.
+    - duplicated `filmId`'s are ignored, just processing one.
+      
 - Rent films
-    - Non-existent userId throws UserNotFoundException.
-    - Non-existent filmId, or not available copies for a film, are ignored and not returned in result list.
+    - Non-existent `filmId`'s or not available stock, are ignored and not returned in result list.
     - With all available films found:
         - decreases stock
         - calculates rent for 1 day.
         - get saved in `Customer.films` (including date in each film).
 - Return films
-    - Non-existent userId throws UserNotFoundException.
     - Non-existent films in `Customer.films` are ignored and not returned in result list.
-    - With all `Customer.films` found:
-        - gets the older one (an filmId could be repeated with different rent date).
+    - From all matching films in `Customer.films`, gets the older one (a filmId could be repeated with different rent date)
         - calculate surcharges (after x days).
+        - remove from customer & save.
+        - increase film stock.
 
 ### Try it
 - Run App as a spring-boot app:
     - command line: `gradlew :bootRun`
     - intellij: right button on `App.java` & Run
-- Every time app starts, customer and films are deleted & created automatically with same ids.
-    - in log console generated json is printed, you can use it in post bodies.
-- Use postman_collection.json (importing the json file in Postman client):
+- Use `postman_collection.json` (importing the json file in Postman client):
     - `rentFilms`: to rent
-    - `customerGet`: to see customer rented films
+    - `customerGet`: to see customer rented films & bonusPoints
     - `returnFilms`: to return (after x days as path param)
+- Every time app starts, customer and films are created automatically with same ids.
+    - in log console generated json is printed, you can use it in post bodies.
