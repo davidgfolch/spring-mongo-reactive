@@ -13,7 +13,7 @@
 Notes:
 - No security implementation at all.
 - No persistence transaction implementation (https://spring.io/blog/2019/05/16/reactive-transactions-with-spring).
-- You'll find some junit tests.
+- You'll find some reactive junit tests.
 - Sonar gradle plugin (you can run sonarqube gradle task if you have sonar installed on localhost:9000)
   
 ### Business logic
@@ -47,10 +47,13 @@ Rent & Return films:
 ### Try it
 - Run App as a spring-boot app:
     - command line: `gradlew :bootRun`
-    - intellij: right button on `App.java` & Run
+    - intellij: right button on `App.java` & Run...
+
+Every time app starts, customer and films are created automatically with harcoded ids for ease of use.
+
+Also, generated json for each user+films is printed in log console, so we can copy/paste in RestApi POST bodies.
+
 - Use `postman_collection.json` (importing the json file in Postman client):
     - `rentFilms`: to rent
     - `customerGet`: to see customer rented films & bonusPoints
     - `returnFilms`: to return (after x days as path param)
-- Every time app starts, customer and films are created automatically with same ids.
-    - in log console generated json is printed, you can use it in post bodies.
