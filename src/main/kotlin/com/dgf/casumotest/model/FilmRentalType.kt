@@ -1,6 +1,6 @@
-package com.dgf.casumotest.model;
+package com.dgf.casumotest.model
 
-public enum FilmRentalType {
+enum class FilmRentalType {
     NEW,
     REGULAR,
     OLD

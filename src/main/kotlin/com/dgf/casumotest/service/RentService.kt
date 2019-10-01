@@ -1,72 +1,63 @@
-package com.dgf.casumotest.service;
+package com.dgf.casumotest.service
 
-import static com.dgf.casumotest.Constants.CUSTOMERS;
-import static com.dgf.casumotest.Constants.FILMS;
-import static com.dgf.casumotest.util.Json.toJson;
-import static java.lang.String.format;
+import com.dgf.casumotest.Constants.CUSTOMERS
+import com.dgf.casumotest.Constants.FILMS
+import com.dgf.casumotest.model.UserFilmsRequest
+import com.dgf.casumotest.model.calculated.RentResult
+import com.dgf.casumotest.model.calculated.Surcharges
+import com.dgf.casumotest.util.Json.toJson
+import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import java.lang.String.format
 
-import com.dgf.casumotest.model.Customer;
-import com.dgf.casumotest.model.Film;
-import com.dgf.casumotest.model.UserFilmsRequest;
-import com.dgf.casumotest.model.calculated.RentResult;
-import com.dgf.casumotest.model.calculated.RentResultLine;
-import com.dgf.casumotest.model.calculated.Surcharges;
-import com.dgf.casumotest.util.Json;
-import java.util.List;
-import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+private val log = KotlinLogging.logger {}
 
 @Service
-@Slf4j
-public class RentService {
-
-    @Autowired
-    private CalcService calcService;
-    @Autowired
-    private FilmService filmService;
-    @Autowired
-    private CustomerService customerService;
+class RentService @Autowired constructor(
+        private val calcService: CalcService,
+        private val filmService: FilmService,
+        private val customerService: CustomerService
+) {
 
     //todo transactional annotation not working https://spring.io/blog/2019/05/16/reactive-transactions-with-spring
-    public Mono<RentResult> rentFilms(UserFilmsRequest rentReq) {
-        return customerService.getById(rentReq.getUserId())
-            .flatMap(customer ->
-                filmService.decreaseStock(rentReq.getFilms()).collectList()
-                    .flatMap(availableFilms -> customerService.bookFilms(customer,availableFilms)
-                        .flatMap(savedCustomer-> {
-                            List<RentResultLine> availableFilmsPrice = calcService.getPrice(availableFilms);
-                            double total = availableFilmsPrice.parallelStream().mapToDouble(RentResultLine::getPrice).sum();
-                            RentResult rentResult = new RentResult(availableFilmsPrice, total);
-                            return Mono.just(rentResult);
-                        })
-                    )
-            ).switchIfEmpty(Mono.error(new UserNotFoundException(format("UserId '%s' not found", rentReq.getUserId()))));
-    }
+    fun rentFilms(rentReq: UserFilmsRequest): Mono<RentResult> =
+            customerService.getById(rentReq.userId)
+                    .flatMap { customer ->
+                        filmService.decreaseStock(rentReq.films).collectList().flatMap { availableFilms ->
+                            customerService.bookFilms(customer, availableFilms)
+                                    .flatMap { _ ->
+                                        val availableFilmsPrice = calcService.getPrice(availableFilms)
+                                        val total = availableFilmsPrice.map { it.price }.sum()
+                                        val rentResult = RentResult(availableFilmsPrice, total)
+                                        Mono.just(rentResult)
+                                    }
+                        }
+                    }.switchIfEmpty(Mono.error(UserNotFoundException(format("UserId '%s' not found", rentReq.userId))))
 
     //todo transactional annotation not working https://spring.io/blog/2019/05/16/reactive-transactions-with-spring
-    public Mono<Surcharges> returnFilms(UserFilmsRequest returnReq, int returnDays) {
-        return customerService.getById(returnReq.getUserId())
-            .flatMap(customer -> {
-                List<String> customerFilms = returnReq.getFilms().parallelStream()
-                    .filter(filmId-> customer.getFilms().stream().anyMatch(cf->filmId.equals(cf.getId())))
-                    .collect(Collectors.toList());
-                return filmService.increaseStock(customerFilms).collectList()
-                    .flatMap(films -> customerService.returnFilms(customer,returnDays,films.parallelStream().map(Film::getId).collect(Collectors.toList())));
+    fun returnFilms(returnReq: UserFilmsRequest, returnDays: Int): Mono<Surcharges> =
+            customerService.getById(returnReq.userId)
+                    .flatMap { customer ->
+                        returnReq.films.filter { filmId -> customer.films.filter { cf -> filmId == cf.id }.any() }
+                                .let { customerFilms ->
+                                    filmService.increaseStock(customerFilms).collectList().flatMap { films ->
+                                        customerService.returnFilms(customer, returnDays, films.map { it::id.get() }.toList())
+                                    }
+                                }
+                    }.switchIfEmpty(Mono.error(UserNotFoundException(format("UserId '%s' not found", returnReq.userId))))
+
+    fun initData() {
+        log.info("Auto generating data for films & customers.")
+        filmService.createFilms(FILMS).map { it::id.get() }
+                .collectList().map<Flux<UserFilmsRequest>> { films ->
+                    customerService.createCustomers(CUSTOMERS).map<String> { it::id.get() }
+                            .map { customer -> UserFilmsRequest(customer, films) }
                 }
-            ).switchIfEmpty(Mono.error(new UserNotFoundException(format("UserId '%s' not found", returnReq.getUserId()))));
-    }
-
-    public void initData() {
-        log.warn("Auto generating data for films & customers.");
-        filmService.createFilms(FILMS.get()).map(Film::getId)
-            .collectList().map(films ->
-                customerService.createCustomers(CUSTOMERS.get()).map(Customer::getId)
-                    .map(customer -> new UserFilmsRequest(customer, films))
-            ).subscribe(map -> map.subscribe(map2->log.warn("initData generated request:\n" + toJson(map2))));
+                .subscribe { map -> map.subscribe { map2 -> log.info("initData generated request:\n" + toJson(map2)) } }
     }
 
 }

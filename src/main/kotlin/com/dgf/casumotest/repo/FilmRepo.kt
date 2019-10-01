@@ -1,10 +1,10 @@
-package com.dgf.casumotest.repo;
+package com.dgf.casumotest.repo
 
-import com.dgf.casumotest.model.Film;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import reactor.core.publisher.Flux;
+import com.dgf.casumotest.model.Film
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import reactor.core.publisher.Flux
 
-public interface FilmRepo extends ReactiveMongoRepository<Film, String> {
+interface FilmRepo : ReactiveMongoRepository<Film, String> {
 
-    Flux<Film> findByTitleIgnoreCaseContaining(String title);
+    fun findByTitleIgnoreCaseContaining(title: String): Flux<Film>
 }

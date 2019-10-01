@@ -1,12 +1,12 @@
-package com.dgf.casumotest.repo;
+package com.dgf.casumotest.repo
 
-import com.dgf.casumotest.model.Customer;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import reactor.core.publisher.Flux;
+import com.dgf.casumotest.model.Customer
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import reactor.core.publisher.Flux
 
 
-public interface CustomerRepo extends ReactiveMongoRepository<Customer, String> {
+interface CustomerRepo : ReactiveMongoRepository<Customer, String> {
 
-    Flux<Customer> findByFirstNameAndLastNameIgnoreCase(String firstName, String lastName);
+    fun findByFirstNameAndLastNameIgnoreCase(firstName: String, lastName: String): Flux<Customer>
 
 }

@@ -1,25 +1,20 @@
-package com.dgf.casumotest.util;
+package com.dgf.casumotest.util
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.extern.slf4j.Slf4j;
+import com.dgf.casumotest.App.Companion.logger
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 
-@Slf4j
-public class Json {
+object Json {
 
-    private Json() {}
+    private val log = logger()
+    private val objectMapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 
-    private static final ObjectMapper objectMapper = new ObjectMapper()
-        .enable(SerializationFeature.INDENT_OUTPUT);
-
-    public static String toJson(Object obj) {
-        try {
-            return objectMapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            log.error("Can't deserialize object {}",obj);
-            return String.format("Can't deserialize object %s", obj);
-        }
+    fun toJson(obj: Any): String = try {
+        objectMapper.writeValueAsString(obj)
+    } catch (e: JsonProcessingException) {
+        log.error("Can't deserialize object {}", obj)
+        "Can't deserialize object $obj"
     }
 
 }

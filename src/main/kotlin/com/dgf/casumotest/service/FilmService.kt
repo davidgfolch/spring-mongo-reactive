@@ -1,52 +1,44 @@
-package com.dgf.casumotest.service;
+package com.dgf.casumotest.service
 
-import com.dgf.casumotest.model.Film;
-import com.dgf.casumotest.repo.FilmRepo;
-import java.util.List;
-import java.util.Optional;
-import javax.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import com.dgf.casumotest.model.Film
+import com.dgf.casumotest.repo.FilmRepo
+import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
+import java.util.*
+import javax.validation.constraints.NotNull
+
+private val log = KotlinLogging.logger {}
 
 @Service
-@Slf4j
-public class FilmService {
+class FilmService @Autowired constructor(
+        private val repo: FilmRepo
+) {
 
-    @Autowired
-    private FilmRepo repo;
+    fun findByTitleIgnoreCaseContaining(title: String): Flux<Film> = repo.findByTitleIgnoreCaseContaining(title)
 
-    public Flux<Film> findByTitleIgnoreCaseContaining(String title) {
-        log.info("finding titles like: {}", title);
-        return repo.findByTitleIgnoreCaseContaining(title);
+    fun createFilms(films: List<Film>): Flux<Film> = repo.deleteAll().thenMany(repo.saveAll(films))
+
+    internal fun increaseStock(films: List<String>): Flux<Film> {
+        log.info("increase stock {} ", films)
+        val updatedFilms = repo.findAllById(films).map { it.availabilityInc() }
+        log.info("increase stock save films {} ", updatedFilms)
+        return repo.saveAll(updatedFilms)
     }
 
-    public Flux<Film> createFilms(List<Film> films) {
-        return repo.deleteAll().thenMany(
-            repo.saveAll(films)
-        );
+    internal fun decreaseStock(@NotNull films: List<String>): Flux<Film> {
+        log.info("decrease stock {} ", films)
+        val availableFilms = repo.findAllById(films)
+                .map { it.availabilityDec() }
+                .filter(Optional<*>::isPresent)
+                .map { film -> film.get() }
+        log.info("decrease stock save availableFilms {} ", availableFilms)
+        return repo.saveAll(availableFilms)
     }
 
-    Flux<Film> increaseStock(List<String> films) {
-        log.info("increase stock {} ", films);
-        Flux<Film> updatedFilms = repo.findAllById(films)
-            .map(Film::availabilityInc);
-        log.info("increase stock save films {} ", updatedFilms);
-        return repo.saveAll(updatedFilms);
-    }
-
-    Flux<Film> decreaseStock(@NotNull List<String> films) {
-        log.info("decrease stock {} ", films);
-        Flux<Film> availableFilms = repo.findAllById(films).map(Film::availabilityDec)
-            .filter(Optional::isPresent)
-            .map(Optional::get);
-        log.info("decrease stock save availableFilms {} ", availableFilms);
-        return repo.saveAll(availableFilms);
-    }
-
-    public Flux<Film> findAll() {
-        return repo.findAll();
+    fun findAll(): Flux<Film> {
+        return repo.findAll()
     }
 
 }

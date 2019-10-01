@@ -1,37 +1,35 @@
-package com.dgf.casumotest.rest.handler;
+package com.dgf.casumotest.rest.handler
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.web.reactive.function.BodyInserters.fromObject;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
-
-import com.dgf.casumotest.model.UserFilmsRequest;
-import com.dgf.casumotest.service.RentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Mono;
+import com.dgf.casumotest.model.UserFilmsRequest
+import com.dgf.casumotest.model.calculated.RentResult
+import com.dgf.casumotest.model.calculated.Surcharges
+import com.dgf.casumotest.service.RentService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.BodyInserters.fromObject
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.ServerResponse.ok
+import reactor.core.publisher.Mono
 
 @Component
-public class RentHandler {
+class RentHandler @Autowired constructor(
+        private val service: RentService
+) {
 
-    private static final Mono<ServerResponse> BAD_REQUEST = ServerResponse.badRequest().build();
-
-    @Autowired
-    private RentService service;
-
-    public Mono<ServerResponse> rentFilms(ServerRequest request) {
-        return request.bodyToMono(UserFilmsRequest.class)
-            .flatMap(req->service.rentFilms(req))
-            .flatMap(res->ok().contentType(APPLICATION_JSON).body(fromObject(res)))
-            .switchIfEmpty(BAD_REQUEST);
+    companion object {
+        private val BAD_REQUEST = ServerResponse.badRequest().build()
     }
 
-    public Mono<ServerResponse> returnFilms(ServerRequest request) {
-        return request.bodyToMono(UserFilmsRequest.class)
-            .flatMap(req->service.returnFilms(req,Integer.parseInt(request.pathVariable("returnDays"))))
-            .flatMap(res->ok().contentType(APPLICATION_JSON).body(fromObject(res)))
-            .switchIfEmpty(BAD_REQUEST);
-    }
+    fun rentFilms(request: ServerRequest): Mono<ServerResponse> = request.bodyToMono(UserFilmsRequest::class.java)
+            .flatMap<RentResult> { req -> service.rentFilms(req) }
+            .flatMap { res -> ok().contentType(APPLICATION_JSON).body(fromObject<RentResult>(res)) }
+            .switchIfEmpty(BAD_REQUEST)
+
+    fun returnFilms(request: ServerRequest): Mono<ServerResponse> = request.bodyToMono(UserFilmsRequest::class.java)
+            .flatMap<Surcharges> { req -> service.returnFilms(req, Integer.parseInt(request.pathVariable("returnDays"))) }
+            .flatMap { res -> ok().contentType(APPLICATION_JSON).body(fromObject<Surcharges>(res)) }
+            .switchIfEmpty(BAD_REQUEST)
 
 }

@@ -1,30 +1,28 @@
-package com.dgf.casumotest.rest;
+package com.dgf.casumotest.rest
 
-import static org.springframework.http.MediaType.TEXT_PLAIN;
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.PUT;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
-
-import com.dgf.casumotest.rest.handler.FilmHandler;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import com.dgf.casumotest.rest.handler.FilmHandler
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.MediaType.TEXT_PLAIN
+import org.springframework.web.reactive.function.server.HandlerFunction
+import org.springframework.web.reactive.function.server.RequestPredicates.*
+import org.springframework.web.reactive.function.server.RouterFunction
+import org.springframework.web.reactive.function.server.RouterFunctions.route
+import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
-public class FilmRouter {
+class FilmRouter {
 
     @Bean
-    public RouterFunction<ServerResponse> createAllFilms(FilmHandler handler) {
-        return route(PUT("/film/createAll").and(accept(TEXT_PLAIN)), handler::create);
-    }
+    fun createAllFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(PUT("/film/createAll")
+            .and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.create(it) })
+
     @Bean
-    public RouterFunction<ServerResponse> findFilms(FilmHandler handler) {
-        return route(GET("/film/find/{title}").and(accept(TEXT_PLAIN)), handler::find);
-    }
+    fun findFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(GET("/film/find/{title}")
+            .and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.find(it) })
+
     @Bean
-    public RouterFunction<ServerResponse> listFilms(FilmHandler handler) {
-        return route(GET("/film/list").and(accept(TEXT_PLAIN)), handler::list);
-    }
+    fun listFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(GET("/film/list")
+            .and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.list(it) })
+
 }

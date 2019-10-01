@@ -1,41 +1,33 @@
-package com.dgf.casumotest.rest.handler;
+package com.dgf.casumotest.rest.handler
 
-import static com.dgf.casumotest.Constants.CUSTOMERS;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-import static org.springframework.web.reactive.function.BodyInserters.fromObject;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
-
-import com.dgf.casumotest.service.CustomerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Mono;
+import com.dgf.casumotest.Constants
+import com.dgf.casumotest.model.Customer
+import com.dgf.casumotest.service.CustomerService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
+import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.BodyInserters.fromObject
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.ServerResponse.ok
+import reactor.core.publisher.Mono
 
 @Component
-public class CustomerHandler {
+class CustomerHandler @Autowired constructor(
+        private val service: CustomerService
+) {
 
-    @Autowired
-    private CustomerService service;
+    fun createAll(request: ServerRequest): Mono<ServerResponse> = service.createCustomers(Constants.CUSTOMERS)
+            .collectList()
+            .flatMap { resp -> ok().contentType(APPLICATION_JSON_UTF8).body(fromObject<List<Customer>>(resp)) }
 
-    public Mono<ServerResponse> createAll(ServerRequest request) {
-        return service.createCustomers(CUSTOMERS.get()).collectList().flatMap(resp->
-            ok().contentType(APPLICATION_JSON_UTF8).body(fromObject(resp))
-        );
-    }
+    fun find(req: ServerRequest): Mono<ServerResponse> =
+            service.findByFirstNameAndLastNameIgnoreCase(
+                    req.pathVariable("firstName"),
+                    req.pathVariable("lastName")
+            ).collectList().flatMap { customers -> ok().contentType(APPLICATION_JSON_UTF8).body(fromObject<List<Customer>>(customers)) }
 
-    public Mono<ServerResponse> find(ServerRequest req) {
-        return service.findByFirstNameAndLastNameIgnoreCase(
-            req.pathVariable("firstName"),
-            req.pathVariable("lastName"))
-        .collectList().flatMap(customers ->
-            ok().contentType(APPLICATION_JSON_UTF8).body(fromObject(customers))
-        );
-    }
+    operator fun get(req: ServerRequest): Mono<ServerResponse> = service.findById(req.pathVariable("id"))
+            .flatMap { customer -> ok().contentType(APPLICATION_JSON_UTF8).body(fromObject<Customer>(customer)) }
 
-    public Mono<ServerResponse> get(ServerRequest req) {
-        return service.findById(req.pathVariable("id")).flatMap(customer ->
-            ok().contentType(APPLICATION_JSON_UTF8).body(fromObject(customer))
-        );
-    }
 }
