@@ -5,12 +5,15 @@ import com.dgf.casumotest.model.CustomerFilm
 import com.dgf.casumotest.model.Film
 import com.dgf.casumotest.model.calculated.Surcharges
 import com.dgf.casumotest.repo.CustomerRepo
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 import javax.validation.constraints.NotNull
+
+private val log = KotlinLogging.logger {}
 
 @Service
 class CustomerService @Autowired constructor(
@@ -36,7 +39,7 @@ class CustomerService @Autowired constructor(
         val now = Calendar.getInstance().time
         customer.films.addAll(films.map { film -> CustomerFilm(film.id, now, film.rentalType) })
         customer.copy(points = (customer.points + calcService.getPoints(films)))
-        //        log.info("customer films update {} ", customer);
+        log.info("customer films update {} ", customer)
         return save(customer)
     }
 
