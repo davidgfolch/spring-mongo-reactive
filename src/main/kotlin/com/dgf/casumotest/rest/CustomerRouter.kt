@@ -14,22 +14,22 @@ import org.springframework.web.reactive.function.server.ServerResponse
 class CustomerRouter {
 
     companion object {
-        private const val CUSTOMER = "/customer"
+        private const val customer = "/customer"
     }
 
     @Bean
     fun createAllCustomers(handler: CustomerHandler): RouterFunction<ServerResponse> {
-        return route(PUT("$CUSTOMER/createAll").and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.createAll(it) })
+        return route(PUT("$customer/createAll").and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.createAll(it) })
     }
 
     @Bean
     fun find(handler: CustomerHandler): RouterFunction<ServerResponse> {
-        return route(GET("$CUSTOMER/find/{firstName}/{lastName}").and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.find(it) })
+        return route(GET("$customer/find/{firstName}/{lastName}").and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.find(it) })
     }
 
     @Bean
     operator fun get(handler: CustomerHandler): RouterFunction<ServerResponse> {
-        return route(GET("$CUSTOMER/get/{id}").and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler[it] })
+        return route(GET("$customer/get/{id}").and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler[it] })
     }
 
 }

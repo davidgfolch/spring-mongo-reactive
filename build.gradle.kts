@@ -61,3 +61,12 @@ allOpen {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.register<Copy>("copyReadme") {
+    from(file("$rootDir/README.md"))
+    into("$rootDir/src/main/resources/static/generated")
+}
+
+tasks.compileKotlin {
+    dependsOn("copyReadme")
+}

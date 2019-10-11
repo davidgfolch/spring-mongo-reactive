@@ -1,0 +1,117 @@
+{
+	"variables": [],
+	"info": {
+		"name": "casumoTest",
+		"_postman_id": "3ce3e75a-fcca-ec79-3186-85656a9607a6",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "filmCreateAll",
+			"request": {
+				"url": "{{server}}/film/createAll",
+				"method": "PUT",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "customerCreateAll",
+			"request": {
+				"url": "{{server}}/customer/createAll",
+				"method": "PUT",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "filmFindLike",
+			"request": {
+				"url": "{{server}}/film/find/sp",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Find like by title"
+			},
+			"response": []
+		},
+		{
+			"name": "filmList",
+			"request": {
+				"url": "{{server}}/film/list",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Find like by title"
+			},
+			"response": []
+		},
+		{
+			"name": "customerFind",
+			"request": {
+				"url": "{{server}}/customer/find/Stella/Harris",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "customerGet",
+			"request": {
+				"url": "{{server}}/customer/get/5d89f274c22a011f98f6dc96",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "rentFilms",
+			"request": {
+				"url": "{{server}}/rent",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userId\" : \"5d89f274c22a011f98f6dc96\",\r\n  \"films\" : [ \"5d89f274c22a011f98f6dc91\", \"5d89f274c22a011f98f6dc92\", \"5d89f274c22a011f98f6dc90\", \"5d89f274c22a011f98f6dc93\" ]\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "returnFilms",
+			"request": {
+				"url": "{{server}}/return/7",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userId\" : \"5d89f274c22a011f98f6dc96\",\r\n  \"films\" : [ \"5d89f274c22a011f98f6dc91\", \"5d89f274c22a011f98f6dc92\", \"5d89f274c22a011f98f6dc90\", \"5d89f274c22a011f98f6dc93\" ]\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

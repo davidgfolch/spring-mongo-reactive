@@ -13,16 +13,20 @@ import org.springframework.web.reactive.function.server.ServerResponse
 @Configuration
 class FilmRouter {
 
+    companion object {
+        private const val film = "/film"
+    }
+
     @Bean
-    fun createAllFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(PUT("/film/createAll")
+    fun createAllFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(PUT("$film/createAll")
             .and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.create(it) })
 
     @Bean
-    fun findFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(GET("/film/find/{title}")
+    fun findFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(GET("$film/find/{title}")
             .and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.find(it) })
 
     @Bean
-    fun listFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(GET("/film/list")
+    fun listFilms(handler: FilmHandler): RouterFunction<ServerResponse> = route(GET("$film/list")
             .and(accept(TEXT_PLAIN)), HandlerFunction<ServerResponse> { handler.list(it) })
 
 }
