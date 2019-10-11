@@ -52,12 +52,12 @@ class RentService @Autowired constructor(
 
     fun initData() {
         log.info("Auto generating data for films & customers.")
-        filmService.createFilms(FILMS).map { it::id.get() }
-                .collectList().map<Flux<UserFilmsRequest>> { films ->
-                    customerService.createCustomers(CUSTOMERS).map<String> { it::id.get() }
-                            .map { customer -> UserFilmsRequest(customer, films) }
-                }
-                .subscribe { map -> map.subscribe { map2 -> log.info("initData generated request:\n" + toJson(map2)) } }
+        filmService.createFilms(FILMS).map { it::id.get() }.collectList().map { filmsIds ->
+            customerService.createCustomers(CUSTOMERS).map { it::id.get() }
+                .map { customerId -> log.info("initData generated request:\n" +
+                        toJson(UserFilmsRequest(customerId, filmsIds)))
+                }.subscribe()
+        }.subscribe()
     }
 
 }
