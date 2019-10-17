@@ -53,10 +53,9 @@ class RentService @Autowired constructor(
     fun initData() {
         log.info("Auto generating data for films & customers.")
         filmService.createFilms(FILMS).map { it::id.get() }.collectList().map { filmsIds ->
-            customerService.createCustomers(CUSTOMERS).map { it::id.get() }
-                .map { customerId -> log.info("initData generated request:\n" +
-                        toJson(UserFilmsRequest(customerId, filmsIds)))
-                }.subscribe()
+            customerService.createCustomers(CUSTOMERS).map { it::id.get() }.map { customerId ->
+                log.info("initData generated request:\n" + toJson(UserFilmsRequest(customerId, filmsIds)))
+            }.subscribe()
         }.subscribe()
     }
 
