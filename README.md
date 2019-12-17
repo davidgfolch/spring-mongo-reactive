@@ -3,6 +3,7 @@
 ## Description
 
 Fully reactive Rental film REST API.
+Also see Kotlin version (in Kotlin branch).
 
 ### Prerequisites
 - Enable annotation processors (in your IDE for lombok)
