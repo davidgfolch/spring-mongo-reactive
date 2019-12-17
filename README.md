@@ -1,5 +1,9 @@
 # Getting Started
 
+## Description
+
+Fully reactive Rental film REST API.
+
 ### Prerequisites
 - Enable annotation processors (in your IDE for lombok)
 
