@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class CalcService {
 
-    private static final Double PREMIUM_PRICE = 40.0;
-    private static final Double BASIC_PRICE = 30.0;
+    private static final Double PREMIUM_PRICE = 3.0;
+    private static final Double BASIC_PRICE = 1.0;
 
     private static final int PREMIUM_POINTS = 2;
     private static final int BASIC_POINTS = 1;
