@@ -14,8 +14,8 @@ import java.util.concurrent.TimeUnit
 class CalcService {
 
     companion object {
-        private const val PREMIUM_PRICE = 40.0
-        private const val BASIC_PRICE = 30.0
+        private const val PREMIUM_PRICE = 3.0
+        private const val BASIC_PRICE = 1.0
 
         private const val PREMIUM_POINTS = 2
         private const val BASIC_POINTS = 1
