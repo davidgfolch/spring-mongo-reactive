@@ -11,9 +11,9 @@ Also see Kotlin version (in Kotlin branch).
 ### Architecture
 - Reactive Layers architecture (spring-framework reactor).
 - Java non-blocking functional programming: reactor+streams.
-- REST API's with Spring-WebFlux (as a POC for me, I didn't use it before).
+- REST API's with Spring-WebFlux.
     - Using [Functional Programming Model](https://docs.spring.io/spring-framework/docs/5.0.0.BUILD-SNAPSHOT/spring-framework-reference/html/web-reactive.html#_functional_programming_model)
-- Persistence with reactive MongoDb (as a POC for me, I did use it before).
+- Persistence with reactive MongoDb.
 
 Notes:
 - No security implementation at all.
